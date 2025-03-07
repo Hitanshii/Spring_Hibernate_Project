@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+        
+        
+        <!-- this is datasouce obj -->
+        
+        <bean name="ds" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/springjdbc"/>
+        <property name="username" value="root"/>
+        <property name="password" value="root"/>
+        </bean>
+        
+        
+        <!-- this is implemented calss for sessionfactory as it is interface we can not create obj of this so 
+        we create obj for its implemented calss localsessionfactorybean and provide its reference to hibernateTemplate
+        class obj -->
+        <bean name="factory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        
+         <!-- data source -->
+        <property name="dataSource" ref="ds"></property>
+        
+        <!--  hibernate properties -->
+        <property name="hibernateProperties">
+        <props>
+       <prop key="hibernate.dialect">org.hibernate.dialect.MySQL57Dialect</prop>
+       <prop key="hibernate.show_sql"> true</prop>
+        <prop key ="hibernate.hbm2ddl.auto">update</prop>
+        </props>
+        </property>
+         
+        <!--  annotated class -->
+        <property name="annotatedClasses">
+        
+        <list>
+          <value>
+            com.spring.orm.entity.Student
+          </value>
+        </list>
+        
+        </property>
+        
+        
+       <!--  this is hibernate template obj and it needs session factory obj  but session factory is an interface can not 
+        create obj so its implemented class Localsessionfactorybean we will create obj for this and paas its refrence 
+         -->
+        </bean>
+       <bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate">
+    <property name="sessionFactory" ref="factory" />
+    <property name="checkWriteOperations" value="false"/> <!-- Allow writes -->
+</bean>
+
+        
+        
+        
+       <!--   //Studentdao needs hibernate Template obj -->
+        <bean name="studentDao" class="com.spring.orm.dao.StudentDao">
+        <property name="hibernateTemplate" ref="hibernateTemplate"></property>
+        </bean>
+  </beans>
+        
+        
+        
